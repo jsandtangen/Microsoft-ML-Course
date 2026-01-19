@@ -1,0 +1,5 @@
+install.packages("tidyverse")
+install.packages("tidymodels")
+install.packages("nycflights13")
+library(nycflights13)
+install.packages("themis")
