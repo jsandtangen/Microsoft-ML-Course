@@ -1,4 +1,4 @@
-install.packages(c("tidyverse", "tidymodels", "DataExplorer", "here"),
+install.packages(c("tidyverse", "tidymodels", "DataExplorer", "here", "themis"),
                  lib = "C:/Users/jsand/AppData/Local/R/win-library")
 
 .libPaths("C:/Users/jsand/AppData/Local/R/win-library")
@@ -118,3 +118,45 @@ df_select <- df %>%
 # Display new data set
 df_select %>% 
   slice_head(n = 5)
+
+# Distribution of cuisines
+old_label_count <- df_select %>% 
+  count(cuisine) %>% 
+  arrange(desc(n))
+
+old_label_count
+
+# Load themis package for dealing with imbalanced data
+library(themis)
+
+# Create a recipe for preprocessing data
+cuisines_recipe <- recipe(cuisine ~ ., data = df_select) %>% 
+  step_smote(cuisine)
+
+cuisines_recipe
+
+# Prep and bake the recipe
+preprocessed_df <- cuisines_recipe %>% 
+  prep() %>% 
+  bake(new_data = NULL) %>% 
+  relocate(cuisine)
+
+# Display data
+preprocessed_df %>% 
+  slice_head(n = 5)
+
+# Quick summary stats
+preprocessed_df %>% 
+  introduce()
+
+# Distribution of cuisines
+new_label_count <- preprocessed_df %>% 
+  count(cuisine) %>% 
+  arrange(desc(n))
+
+list(new_label_count = new_label_count,
+     old_label_count = old_label_count)
+
+
+# Save preprocessed data
+write_csv(preprocessed_df, "C:/Users/jsand/OneDrive - OsloMet/NETTSKY/JOBB/IT/prosjekter/Microsoft-ML-Course/Classification/Data/cleaned_cuisines_R.csv")
