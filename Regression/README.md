@@ -444,19 +444,3 @@ Andre modeller kan være bedre når:
 Da kan modeller som Random Forest, Gradient Boosting, XGBoost eller Neural Networks være aktuelle.
 
 ---
-
-## Viktige ting å huske
-
-- Regresjon brukes for å predikere kontinuerlige tallverdier.
-- `X` inneholder features, og `y` inneholder target.
-- Datakvalitet og featurevalg er ofte viktigere enn selve modellen.
-- Train/test split brukes for å måle generalisering.
-- MAE og RMSE måler prediksjonsfeil.
-- R² sier noe om hvor mye variasjon modellen forklarer.
-- Residualer bør sjekkes for systematiske mønstre.
-- Overfitting betyr at modellen lærer treningsdataene for godt.
-- Underfitting betyr at modellen er for enkel.
-- Lineær regresjon er en god baseline, men ikke alltid den beste modellen.
-- Logistic Regression brukes hovedsakelig til klassifikasjon.
-
----
