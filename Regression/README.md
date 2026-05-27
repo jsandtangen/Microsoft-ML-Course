@@ -33,18 +33,6 @@ Forskjellen mellom regresjon og klassifikasjon ligger i hva modellen skal predik
 | Regresjon | Kontinuerlig tallverdi | Pris, temperatur, salg |
 | Klassifikasjon | Klasse/kategori | Spam/ikke spam, ja/nei, syk/frisk |
 
-Regresjon svarer typisk på spørsmål som:
-
-```text
-Hva blir verdien?
-```
-
-Klassifikasjon svarer heller på:
-
-```text
-Hvilken kategori tilhører observasjonen?
-```
-
 ---
 
 ## Vanlige regresjonsmodeller
@@ -65,35 +53,6 @@ Vanlige modeller er:
 - Neural Networks
 
 Valg av modell avhenger av datasettet, problemstillingen, graden av ikke-linearitet og hvor viktig tolkbarhet er.
-
----
-
-## Lineær regresjon
-
-Lineær regresjon er en grunnleggende regresjonsmodell som antar en lineær sammenheng mellom inputvariablene og målvariabelen.
-
-For én forklaringsvariabel kan modellen skrives som:
-
-```text
-y = a + bx
-```
-
-Der:
-
-- `y` er målvariabelen
-- `x` er inputvariabelen
-- `a` er konstantleddet
-- `b` er koeffisienten/stigningstallet
-
-I praksis betyr koeffisienten hvor mye `y` forventes å endre seg når `x` øker med én enhet, gitt at modellen er lineær.
-
-Eksempel:
-
-```text
-pris = a + b * areal
-```
-
-Hvis `b` er positiv, øker predikert pris når arealet øker. Hvis `b` er negativ, synker predikert verdi når inputverdien øker.
 
 ---
 
