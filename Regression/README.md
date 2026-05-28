@@ -1,17 +1,71 @@
-# Regresjon i maskinlæring
+# Regresjon - teknisk README
 
-Regresjon er en metode innen supervised learning der målet er å predikere en kontinuerlig numerisk verdi. Modellen lærer en sammenheng mellom et sett med forklaringsvariabler, ofte kalt features, og en målvariabel, ofte kalt target.
+Dette dokumentet oppsummerer en vanlig teknisk arbeidsflyt for regresjon i Python. Regresjon brukes når målet er å predikere en numerisk verdi, for eksempel pris, temperatur, salg eller forbruk.
 
-Regresjon brukes når svaret ikke er en klasse eller kategori, men et tall. Typiske eksempler er prediksjon av boligpris, temperatur, salg, strømforbruk, etterspørsel eller andre målbare verdier.
-
-I et regresjonsproblem har vi vanligvis følgende struktur:
+## Vanlige biblioteker
 
 ```python
-X = features
-y = target
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 ```
 
-Der `X` inneholder variablene modellen bruker for å lære, mens `y` er verdien modellen skal predikere.
+Vanlige biblioteker:
+
+* `pandas` brukes til å lese, rydde og analysere datasett
+* `numpy` brukes til numeriske beregninger
+* `matplotlib` brukes til visualisering
+* `scikit-learn` brukes til modelltrening, splitting av data og evaluering
+
+---
+
+## Lese inn data
+
+```python
+df = pd.read_csv("data.csv")
+
+df.head()
+df.info()
+df.describe()
+```
+
+Dette brukes for å få oversikt over datasettet, kolonner, datatyper og statistikk.
+
+---
+
+## Sjekke manglende verdier
+
+```python
+df.isnull().sum()
+```
+
+Hvis datasettet har manglende verdier, kan man for eksempel fjerne dem:
+
+```python
+df = df.dropna()
+```
+
+Eller fylle dem med en verdi:
+
+```python
+df["kolonne"] = df["kolonne"].fillna(df["kolonne"].mean())
+```
+
+---
+
+## Velge features og target
+
+```python
+X = df[["feature_1", "feature_2", "feature_3"]]
+y = df["target"]
+```
+
+* `X` er inputvariablene modellen skal bruke
+* `y` er verdien modellen skal predikere
 
 Eksempel:
 
@@ -20,135 +74,199 @@ X = df[["areal", "soverom", "byggeaar"]]
 y = df["pris"]
 ```
 
-Her forsøker modellen å lære hvordan areal, antall soverom og byggeår henger sammen med boligpris.
-
 ---
 
-## Regresjon vs. klassifikasjon
-
-Forskjellen mellom regresjon og klassifikasjon ligger i hva modellen skal predikere.
-
-| Problemtype | Predikerer | Eksempel |
-|---|---|---|
-| Regresjon | Kontinuerlig tallverdi | Pris, temperatur, salg |
-| Klassifikasjon | Klasse/kategori | Spam/ikke spam, ja/nei, syk/frisk |
-
----
-
-## Vanlige regresjonsmodeller
-
-Det finnes flere typer regresjonsmodeller, fra enkle og tolkbare modeller til mer fleksible modeller som kan fange opp komplekse mønstre.
-
-Vanlige modeller er:
-
-- Linear Regression
-- Polynomial Regression
-- Ridge Regression
-- Lasso Regression
-- Elastic Net
-- Decision Tree Regressor
-- Random Forest Regressor
-- Gradient Boosting Regressor
-- XGBoost Regressor
-- Neural Networks
-
-Valg av modell avhenger av datasettet, problemstillingen, graden av ikke-linearitet og hvor viktig tolkbarhet er.
-
----
-
-## Multippel lineær regresjon
-
-I praktiske problemer bruker man ofte flere forklaringsvariabler samtidig. Dette kalles multippel lineær regresjon.
+## Dele data i trening og test
 
 ```python
-X = df[["areal", "soverom", "byggeaar", "avstand_sentrum"]]
-y = df["pris"]
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
 ```
 
-Modellen forsøker da å estimere hvordan hver variabel bidrar til prediksjonen, kontrollert for de andre variablene i modellen.
+* `X_train` og `y_train` brukes til å trene modellen
+* `X_test` og `y_test` brukes til å evaluere modellen
 
-Dette er mer realistisk enn enkel lineær regresjon, fordi de fleste fenomener påvirkes av flere faktorer samtidig.
+---
+
+## Trene en lineær regresjonsmodell
+
+```python
+model = LinearRegression()
+
+model.fit(X_train, y_train)
+```
+
+`fit()` trener modellen på treningsdataene.
+
+---
+
+## Lage prediksjoner
+
+```python
+predictions = model.predict(X_test)
+```
+
+`predict()` brukes for å lage prediksjoner på testdata.
+
+---
+
+## Evaluere modellen
+
+```python
+mae = mean_absolute_error(y_test, predictions)
+mse = mean_squared_error(y_test, predictions)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_test, predictions)
+
+print("MAE:", mae)
+print("RMSE:", rmse)
+print("R²:", r2)
+```
+
+Vanlige evalueringsmål:
+
+* `MAE`: gjennomsnittlig absolutt feil
+* `MSE`: gjennomsnittlig kvadrert feil
+* `RMSE`: kvadratroten av MSE
+* `R²`: hvor mye av variasjonen modellen forklarer
+
+---
+
+## Visualisere faktisk verdi mot predikert verdi
+
+```python
+plt.scatter(y_test, predictions)
+plt.xlabel("Faktiske verdier")
+plt.ylabel("Predikerte verdier")
+plt.title("Faktiske vs. predikerte verdier")
+plt.show()
+```
+
+Hvis modellen treffer godt, bør punktene ligge omtrent langs en diagonal linje.
+
+---
+
+## Visualisere residualer
+
+```python
+residuals = y_test - predictions
+
+plt.scatter(predictions, residuals)
+plt.axhline(y=0)
+plt.xlabel("Predikerte verdier")
+plt.ylabel("Residualer")
+plt.title("Residualplot")
+plt.show()
+```
+
+Residualer er forskjellen mellom faktisk og predikert verdi.
+
+Et residualplot brukes for å se om modellen bommer tilfeldig, eller om det finnes tydelige mønstre i feilene.
 
 ---
 
 ## Polynomial Regression
 
-Polynomial Regression brukes når sammenhengen mellom inputvariablene og målvariabelen ikke er godt beskrevet av en rett linje.
-
-Ved å lage nye features som potenser av eksisterende variabler, kan modellen fange opp kurvede sammenhenger.
-
-Eksempel:
+Polynomial Regression kan brukes hvis sammenhengen ikke er lineær.
 
 ```python
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
-from sklearn.linear_model import LinearRegression
 
-model = make_pipeline(
+poly_model = make_pipeline(
     PolynomialFeatures(degree=2),
     LinearRegression()
 )
 
-model.fit(X_train, y_train)
-predictions = model.predict(X_test)
+poly_model.fit(X_train, y_train)
+
+poly_predictions = poly_model.predict(X_test)
 ```
 
-En modell med `degree=2` inkluderer blant annet andregradsledd. Dette kan gi bedre tilpasning dersom dataene har en ikke-lineær struktur.
-
-Samtidig øker risikoen for overfitting når modellen blir mer kompleks. Derfor bør polynomial regression alltid vurderes mot testdata, ikke bare treningsdata.
+Dette lager nye features basert på potenser av de eksisterende variablene.
 
 ---
 
-## Logistic Regression
+## Skalering
 
-Logistic Regression har ordet "regression" i navnet, men brukes vanligvis til klassifikasjon.
-
-Modellen estimerer sannsynligheten for at en observasjon tilhører en bestemt klasse, ofte i et binært problem.
-
-Eksempler:
-
-- Kunde kjøper eller kjøper ikke
-- Spam eller ikke spam
-- Syk eller frisk
-- Ja eller nei
-
-Eksempel:
+Noen modeller fungerer bedre når dataene skaleres.
 
 ```python
-from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
 
-model = LogisticRegression()
+scaler = StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+```
+
+Viktig:
+
+* Bruk `fit_transform()` på treningsdata
+* Bruk `transform()` på testdata
+
+Dette hindrer data leakage.
+
+---
+
+## Pipeline
+
+Pipeline gjør at preprocessing og modelltrening samles i én struktur.
+
+```python
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Ridge
+
+pipeline = make_pipeline(
+    StandardScaler(),
+    Ridge()
+)
+
+pipeline.fit(X_train, y_train)
+
+predictions = pipeline.predict(X_test)
+```
+
+Pipeline er nyttig når man kombinerer flere steg, for eksempel skalering og modelltrening.
+
+---
+
+## Eksempel med Random Forest Regressor
+
+```python
+from sklearn.ensemble import RandomForestRegressor
+
+model = RandomForestRegressor(
+    n_estimators=100,
+    random_state=42
+)
+
 model.fit(X_train, y_train)
 
 predictions = model.predict(X_test)
 ```
 
-Logistic Regression er derfor viktig å kjenne til, men bør skilles fra regresjonsmodeller som predikerer kontinuerlige verdier.
+Random Forest kan fange opp mer komplekse og ikke-lineære sammenhenger enn lineær regresjon.
 
 ---
 
-## Typisk arbeidsflyt i et regresjonsprosjekt
-
-En vanlig prosess for regresjon er:
-
-1. Definer problemstillingen
-2. Utforsk datasettet
-3. Rens og klargjør data
-4. Velg features og target
-5. Del data i trenings- og testsett
-6. Tren modellen
-7. Lag prediksjoner
-8. Evaluer modellen
-9. Juster modell eller features ved behov
-
-Eksempel på en enkel regresjonsflyt:
+## Full enkel regresjonsflyt
 
 ```python
+import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+df = pd.read_csv("data.csv")
 
 X = df[["feature_1", "feature_2", "feature_3"]]
 y = df["target"]
@@ -167,280 +285,17 @@ predictions = model.predict(X_test)
 
 mae = mean_absolute_error(y_test, predictions)
 rmse = np.sqrt(mean_squared_error(y_test, predictions))
-r2 = model.score(X_test, y_test)
+r2 = r2_score(y_test, predictions)
 
 print("MAE:", mae)
 print("RMSE:", rmse)
 print("R²:", r2)
+
+plt.scatter(y_test, predictions)
+plt.xlabel("Faktiske verdier")
+plt.ylabel("Predikerte verdier")
+plt.title("Faktiske vs. predikerte verdier")
+plt.show()
 ```
-
----
-
-## Train/test split
-
-For å evaluere en modell må dataene deles i treningsdata og testdata.
-
-```python
-from sklearn.model_selection import train_test_split
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.2,
-    random_state=42
-)
-```
-
-Treningsdata brukes til å trene modellen, mens testdata brukes til å undersøke hvor godt modellen generaliserer til nye observasjoner.
-
-Dette er viktig fordi en modell kan prestere godt på treningsdata uten nødvendigvis å fungere godt på nye data.
-
----
-
-## Evaluering av regresjonsmodeller
-
-Regresjonsmodeller evalueres ved å sammenligne faktiske verdier med predikerte verdier.
-
-Vanlige evalueringsmål er:
-
-- MAE
-- MSE
-- RMSE
-- R²
-
----
-
-## MAE
-
-Mean Absolute Error måler gjennomsnittlig absolutt avvik mellom faktisk og predikert verdi.
-
-```python
-from sklearn.metrics import mean_absolute_error
-
-mae = mean_absolute_error(y_test, predictions)
-```
-
-MAE er lett å tolke fordi den har samme enhet som målvariabelen.
-
-Hvis modellen predikerer boligpris og MAE er 50 000, betyr det at modellen i snitt bommer med 50 000 kroner.
-
----
-
-## MSE og RMSE
-
-Mean Squared Error måler gjennomsnittet av kvadrerte feil.
-
-```python
-from sklearn.metrics import mean_squared_error
-
-mse = mean_squared_error(y_test, predictions)
-```
-
-RMSE er kvadratroten av MSE.
-
-```python
-rmse = np.sqrt(mean_squared_error(y_test, predictions))
-```
-
-RMSE er ofte mer tolkbar enn MSE fordi den har samme enhet som målvariabelen.
-
-Siden feilene kvadreres før gjennomsnittet beregnes, straffer MSE og RMSE store feil hardere enn MAE.
-
----
-
-## R²
-
-R², også kalt coefficient of determination, beskriver hvor stor andel av variasjonen i målvariabelen modellen klarer å forklare.
-
-```python
-r2 = model.score(X_test, y_test)
-```
-
-R² tolkes ofte slik:
-
-```text
-R² = 1.0   -> perfekt forklaring
-R² = 0.0   -> modellen forklarer ikke mer enn gjennomsnittet
-R² < 0.0   -> modellen er dårligere enn å bruke gjennomsnittet
-```
-
-En lav R² betyr at modellen ikke fanger opp mye av variasjonen i dataene. Det kan skyldes svake features, ikke-lineære sammenhenger, støy, manglende variabler eller at modellen er for enkel.
-
-Det er viktig å vurdere R² sammen med feilmarginer som MAE og RMSE. En modell kan ha lav feil i absolutte tall, men fortsatt forklare lite av variasjonen.
-
----
-
-## Korrelasjon
-
-Korrelasjon beskriver graden av lineær sammenheng mellom to variabler.
-
-```python
-df["feature"].corr(df["target"])
-```
-
-Korrelasjon ligger mellom -1 og 1.
-
-```text
-1     -> sterk positiv lineær sammenheng
-0     -> ingen tydelig lineær sammenheng
--1    -> sterk negativ lineær sammenheng
-```
-
-Korrelasjon kan være nyttig i utforskende analyse, men bør ikke tolkes som årsakssammenheng. To variabler kan være korrelert uten at den ene forårsaker den andre.
-
----
-
-## Residualer
-
-Residualer er forskjellen mellom faktisk verdi og predikert verdi.
-
-```text
-residual = faktisk verdi - predikert verdi
-```
-
-Residualanalyse brukes for å forstå hvor modellen bommer.
-
-En god regresjonsmodell bør ha residualer som er relativt små og uten tydelig systematisk mønster. Hvis residualene viser struktur, kan det tyde på at modellen mangler viktige variabler eller at sammenhengen ikke er godt modellert.
-
----
-
-## Overfitting og underfitting
-
-Overfitting og underfitting handler om hvor godt modellen balanserer tilpasning til treningsdata mot generalisering til nye data.
-
-### Underfitting
-
-Underfitting skjer når modellen er for enkel til å fange opp mønstrene i dataene.
-
-Typiske tegn:
-
-- Svak score på treningsdata
-- Svak score på testdata
-- Modellen bommer systematisk
-- Modellen klarer ikke å fange opp reelle mønstre
-
-### Overfitting
-
-Overfitting skjer når modellen tilpasser seg treningsdataene for godt, inkludert støy og tilfeldigheter.
-
-Typiske tegn:
-
-- Svært god score på treningsdata
-- Betydelig dårligere score på testdata
-- Modellen generaliserer dårlig til nye data
-
-Målet er ikke å lage en modell som passer treningsdataene perfekt, men en modell som fungerer godt på nye observasjoner.
-
----
-
-## Feature encoding
-
-Maskinlæringsmodeller krever som regel numeriske inputverdier. Derfor må kategoriske variabler ofte kodes om.
-
-Eksempler på kategoriske variabler:
-
-- By
-- Produkttype
-- Farge
-- Størrelse
-- Kategori
-
-For kategorier uten naturlig rekkefølge brukes ofte one-hot encoding.
-
-```python
-pd.get_dummies(df["kategori"])
-```
-
-For kategorier med naturlig rekkefølge kan ordinal encoding brukes.
-
-Eksempel:
-
-```text
-small < medium < large
-```
-
-Dette kan kodes som:
-
-```text
-small = 0
-medium = 1
-large = 2
-```
-
-Det er viktig å velge riktig encoding, fordi feil encoding kan gi modellen kunstige sammenhenger.
-
----
-
-## Skalering
-
-Skalering betyr at numeriske variabler justeres slik at de ligger på en sammenlignbar skala.
-
-```python
-from sklearn.preprocessing import StandardScaler
-
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-```
-
-Lineær regresjon krever ikke alltid skalering, men skalering er ofte viktig for modeller som påvirkes av avstand, gradienter eller regularisering.
-
-Eksempler:
-
-- KNN
-- SVM
-- Logistic Regression
-- Ridge Regression
-- Lasso Regression
-- Neural Networks
-
----
-
-## Pipeline
-
-En pipeline samler preprocessing og modelltrening i én strukturert arbeidsflyt.
-
-```python
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression
-
-pipeline = make_pipeline(
-    StandardScaler(),
-    LinearRegression()
-)
-
-pipeline.fit(X_train, y_train)
-predictions = pipeline.predict(X_test)
-```
-
-Pipeline gjør koden ryddigere og reduserer risikoen for feil, spesielt når man kombinerer flere steg som encoding, skalering, feature engineering og modelltrening.
-
----
-
-## Når passer lineær regresjon?
-
-Lineær regresjon passer godt når:
-
-- Målet er å predikere en numerisk verdi
-- Sammenhengen mellom features og target er omtrent lineær
-- Man ønsker en enkel og tolkbar modell
-- Man vil bruke modellen som baseline
-- Forklarbarhet er viktig
-
-Lineær regresjon er ofte et godt startpunkt, selv om mer avanserte modeller senere kan gi bedre prediksjoner.
-
----
-
-## Når bør man vurdere andre modeller?
-
-Andre modeller kan være bedre når:
-
-- Sammenhengene er tydelig ikke-lineære
-- Det finnes komplekse interaksjoner mellom variabler
-- Residualene viser systematiske mønstre
-- Lineær regresjon gir lav forklaringskraft
-- Prediksjonskvalitet er viktigere enn enkel tolkbarhet
-
-Da kan modeller som Random Forest, Gradient Boosting, XGBoost eller Neural Networks være aktuelle.
 
 ---
