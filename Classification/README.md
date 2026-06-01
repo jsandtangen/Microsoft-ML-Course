@@ -21,6 +21,7 @@ Vanlige biblioteker:
 * `matplotlib` brukes til visualisering
 * `scikit-learn` brukes til modelltrening, splitting og evaluering
 
+![Algorithm cheat-sheet](Images/Algorithm%20cheat-sheet.png)
 ---
 
 ## Lese inn data
@@ -323,6 +324,8 @@ predictions = pipeline.predict(X_test)
 ```
 
 Pipeline gjør koden ryddigere og reduserer risikoen for feil.
+
+![Multiclass](Images/Multiclass.png)
 
 ---
 
